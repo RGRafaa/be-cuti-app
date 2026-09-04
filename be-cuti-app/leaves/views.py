@@ -23,12 +23,12 @@ class LeaveRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = LeaveRequest.objects.select_related("employee", "pengalihan_kepada").all()
+        if getattr(self, "swagger_fake_view", False):
+            return qs.none()
         user = self.request.user
         if user.role in ("hr", "admin"):
             return qs
-        # Milik sendiri, ATAU dia yang ditunjuk buat pengalihan kerjaan
         return qs.filter(Q(employee=user.employee) | Q(pengalihan_kepada=user.employee))
-
     def perform_create(self, serializer):
         employee = self.request.user.employee
         leave_request = serializer.save(employee=employee)
@@ -82,10 +82,12 @@ class LeaveApprovalViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsManagerOrBOD, HasEmployeeProfile]
 
     def get_queryset(self):
-        user = self.request.user
         qs = LeaveApproval.objects.select_related(
             "leave_request", "leave_request__employee", "required_approver", "approver"
         )
+        if getattr(self, "swagger_fake_view", False):
+            return qs.none()
+        user = self.request.user
         if user.role == "admin":
             return qs
         employee_id = user.employee_id
