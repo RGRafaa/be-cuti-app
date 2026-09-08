@@ -106,3 +106,35 @@ class HRReview(models.Model):
 
     def __str__(self):
         return f"HR Review - {self.leave_request}"
+    
+class LeaveBalance(models.Model):
+    """
+    Nge-track berapa hari yang udah kepake per karyawan, per tahun, per
+    jenis cuti. Kuota totalnya (12/10/5) sengaja TIDAK disimpan di sini --
+    itu konstanta tetap (lihat KUOTA_PER_JENIS di bawah), karena sama buat
+    semua karyawan.
+    """
+
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="leave_balances"
+    )
+    tahun = models.PositiveIntegerField()
+    jenis_cuti = models.CharField(max_length=20, choices=LeaveRequest.JenisCuti.choices)
+    terpakai = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint( #
+                fields=["employee", "tahun", "jenis_cuti"], name="unique_saldo_per_tahun_jenis"
+            ) #gak boleh ada row LeaveBalance yang memiliki 2 row dengan employee, tahun dan jenis cuti yang sama persis
+        ]
+
+    def __str__(self):
+        return f"{self.employee.nama} - {self.tahun} - {self.get_jenis_cuti_display()}: {self.terpakai} hari"
+
+
+KUOTA_PER_JENIS = {
+    LeaveRequest.JenisCuti.TAHUNAN: 12,
+    LeaveRequest.JenisCuti.SAKIT: 10,
+    LeaveRequest.JenisCuti.KHUSUS: 5,
+}

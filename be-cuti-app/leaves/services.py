@@ -1,5 +1,5 @@
 from django.utils import timezone
-from .models import LeaveApproval, LeaveRequest
+from .models import LeaveApproval, LeaveRequest, HRReview, LeaveBalance, KUOTA_PER_JENIS
 
 def route_approval(leave_request: LeaveRequest) -> LeaveApproval:
     """
@@ -73,5 +73,21 @@ def proses_approval(approval: LeaveApproval, approver_employee, setuju:bool, cat
     )
     leave_request.save(update_fields=["status", "updated_at"])
     return approval
+
+def catat_pemakaian_cuti(leave_request: LeaveRequest):
+    """
+    Dipanggil begitu HR menyelesaikan review. Nambahin `terpakai` di
+    LeaveBalance employee ini, sesuai jenis_cuti & jumlah_hari pengajuan.
+    """
+    tahun = leave_request.tanggal_pengajuan.year
+    balance, _ = LeaveBalance.objects.get_or_create(
+        employee=leave_request.employee,
+        tahun=tahun,
+        jenis_cuti=leave_request.jenis_cuti,
+        defaults={"terpakai": 0}, #kalo row udah ada maka create baru, kalo ngga ada maka perintah ini diabaikan
+    )
+    balance.terpakai += leave_request.jumlah_hari
+    balance.save(update_fields=["terpakai"])
+    return balance
     
     

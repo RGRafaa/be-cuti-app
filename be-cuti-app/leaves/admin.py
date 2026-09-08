@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import LeaveRequest, LeaveApproval, HRReview
+from .models import LeaveRequest, LeaveApproval, HRReview, LeaveBalance
 
 @admin.register(LeaveRequest)
 class LeaveRequestAdmin(admin.ModelAdmin):
@@ -14,3 +14,9 @@ class LeaveApprovalAdmin(admin.ModelAdmin):
 @admin.register(HRReview)
 class HRReviewAdmin(admin.ModelAdmin):
     list_display = ['leave_request', 'sisa_saldo_cuti', 'hr_pic']
+    
+@admin.register(LeaveBalance)
+class LeaveBalanceAdmin(admin.ModelAdmin):
+    list_display = ["employee", "tahun", "jenis_cuti", "terpakai"]
+    list_filter = ["tahun", "jenis_cuti"]
+    

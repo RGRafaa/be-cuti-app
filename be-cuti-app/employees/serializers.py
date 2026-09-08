@@ -2,14 +2,14 @@ from rest_framework import serializers
 from .models import Employee
 
 class EmployeeMiniSerializer(serializers.ModelSerializer):
-    """Versi ringkas, dipakai buat nested represntation di serializer lain"""
+    """Versi ringkas, dipakai buat nested represntation di serializer lain, yg penting penting aja"""
     
     class Meta:
         model = Employee
         fields = ["id", "nip", "nama", "jabatan", "departemen_divisi"]
         
 class EmployeeSerializer(serializers.ModelSerializer):
-    nama_atasan_detail = EmployeeMiniSerializer(source="nama_atasan", read_only=True)
+    nama_atasan_detail = EmployeeMiniSerializer(source="nama_atasan", read_only=True) #biar bisa ngeliat siapa atasan kita daripada cuman nunjukin id doang
     
     class Meta:
         model = Employee

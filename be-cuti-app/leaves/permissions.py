@@ -20,7 +20,7 @@ class IsManagerOrBOD(permissions.BasePermission):
             and request.user.role in ("manager", "bod", "admin")
         )
 
-class HasEmployeeProfile(permissions.BasePermission):
+class HasEmployeeProfile(permissions.BasePermission): #Fungsi yang hanya boleh diakses karyawan
     message = "Akun ini belum terhubung ke data karyawan (Employee)"
     
     def has_permission(self, request, view):

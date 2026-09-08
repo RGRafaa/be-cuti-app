@@ -14,7 +14,7 @@ from .serializers import (
     LeaveRequestSerializer,
     PengalihanResponseSerializer,
 )
-from .services import konfirmasi_pengalihan, proses_approval, resubmit_setelah_revisi, route_approval
+from .services import konfirmasi_pengalihan, proses_approval, resubmit_setelah_revisi, route_approval, catat_pemakaian_cuti
 
 
 class LeaveRequestViewSet(viewsets.ModelViewSet):
@@ -147,3 +147,4 @@ class HRReviewViewSet(viewsets.ModelViewSet):
         leave_request = hr_review.leave_request
         leave_request.status = LeaveRequest.Status.SELESAI
         leave_request.save(update_fields=["status", "updated_at"])
+        catat_pemakaian_cuti(leave_request)
